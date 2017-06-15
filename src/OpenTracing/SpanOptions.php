@@ -18,24 +18,9 @@ final class SpanOptions
     private $tags = [];
 
     /**
-     * @var mixed
+     * @var int|float|\DateTimeInterface
      */
     private $startTime;
-
-    /**
-     * @var bool
-     */
-    private $isActive = true;
-
-    /**
-     * @var string
-     */
-    private $thread;
-
-    private function __construct()
-    {
-        new self();
-    }
 
     public static function create(array $options)
     {
@@ -43,14 +28,6 @@ final class SpanOptions
         
         foreach ($options as $key => $value) {
             switch ($key) {
-                case 'is_active':
-                    $spanOptions->isActive = (bool) $value;
-                    break;
-
-                case 'thread':
-                    $spanOptions->thread = (string) $value;
-                    break;
-
                 case 'child_of':
                     $spanOptions->childOf = self::buildChildOf($value);
                     break;
@@ -71,6 +48,7 @@ final class SpanOptions
 
                 default:
                     throw InvalidSpanOption::create($key);
+                    break;
             }
         }
 
@@ -83,6 +61,8 @@ final class SpanOptions
             return ChildOf::withContext($value->context());
         } elseif ($value instanceof SpanContext) {
             return ChildOf::withContext($value);
+        } elseif ($value instanceof ChildOf) {
+            return $value;
         }
 
         throw InvalidSpanOption::create('child_of');
@@ -91,7 +71,7 @@ final class SpanOptions
     /**
      * @return ChildOf
      */
-    public function getChildOf()
+    public function childOf()
     {
         return $this->childOf;
     }
@@ -105,7 +85,7 @@ final class SpanOptions
     }
 
     /**
-     * @return mixed
+     * @return int|float|\DateTimeInterface
      */
     public function startTime()
     {

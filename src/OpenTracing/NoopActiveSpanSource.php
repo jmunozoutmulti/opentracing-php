@@ -9,11 +9,11 @@ final class NoopActiveSpanSource implements ActiveSpanSource
         return new self();
     }
 
-    public function activate(Span $span, $threads = self::THREAD_DEFAULT)
+    public function activate(Span $span)
     {
     }
 
-    public function activeSpan($thread = self::THREAD_DEFAULT)
+    public function activeSpan()
     {
         return NoopSpan::create();
     }

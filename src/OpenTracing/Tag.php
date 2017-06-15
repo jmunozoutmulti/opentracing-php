@@ -46,4 +46,11 @@ final class Tag
     {
         return $this->key == $key;
     }
+
+    public function isEqual(Tag $tag)
+    {
+        return
+            $this->key === $tag->key() &&
+            $this->value === $tag->value();
+    }
 }

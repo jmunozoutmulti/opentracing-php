@@ -33,7 +33,7 @@ Note that the `GlobalTracer` is a singleton itself but all the rest public metho
 
 #### Creating a Span given an existing Request
 
-To start a new `Span`, you can use the `StartSpanFromContext` method.
+To start a new `Span`, you can use the `startActiveSpan` method.
 
 ```php
     use Psr\Http\Message\RequestInterface;
@@ -48,7 +48,7 @@ To start a new `Span`, you can use the `StartSpanFromContext` method.
     function doSomething(SpanContext $spanContext, ...) {
         ...
         
-        $span = GlobalTracer::globalTracer()->startSpan('my_span', ChildOf::withContext($spanContext));
+        $span = GlobalTracer::globalTracer()->startManualSpan('my_span', ['child_of' => $spanContext]);
         
         ...
         
@@ -64,30 +64,41 @@ To start a new `Span`, you can use the `StartSpanFromContext` method.
 
 #### Starting an empty trace by creating a "root span"
 
-It's always possible to create a "root" `Span` with no parent or other causal
-reference.
+It's always possible to create a "root" `Span` with no parent or other causal reference.
 
 ```php
-    $span = $tracer->startSpan('my_span');
+    $span = $tracer->startActiveSpan('my_first_span');
     ...
     $span->finish();
 ```
 
-#### Creating a (child) Span given an existing (parent) Span
+#### Creating a child span assigning parent manually
 
 ```php
-    use OpenTracing\SpanReference\ChildOf;
+	use OpenTracing\SpanReference\ChildOf;
+	
+	$parent = GlobalTracer::globalTracer()->startManualSpan('parent');	$child = GlobalTracer::globalTracer()->startManualSpan('child', [
+		'child_of' => $parent
+	]);
+	...
+	$child->finish();
+	...
+	$parent->finish();
+```
 
-    function xyz(Span $parentSpan, ...) {
-        ...
-        $span = GlobalTracer::globalTracer()->startSpan(
-            'my_span',
-            ChildOf::withContext($span->context())
-        );
-        
-        $span->finish();
-        ...
-    }
+#### Creating a child span using automatic active span management
+Every new span will take the active span as parent and it will take its spot.
+
+```php    
+	$parent = GlobalTracer::globalTracer()->startManualSpan('parent');        ...
+
+    // Since the parent span has been created by using startActiveSpan we don't need
+    // to pass a reference for this child span
+    $child = GlobalTracer::globalTracer()->startActiveSpan('my_second_span');
+    ... 
+    $child->finish();
+    ...
+    $parent->finish();
 ```
 
 #### Serializing to the wire
@@ -107,7 +118,7 @@ reference.
     );
     
     try {
-        $span = $tracer->startSpanWithOptions('my_span', ['child_of' => $spanContext]);
+        $span = $tracer->startManualSpan('my_span', ['child_of' => $spanContext]);
 
         $client = new GuzzleHttp\Client;
         
@@ -129,7 +140,7 @@ reference.
 
 #### Deserializing from the wire
 
-When using http header for context propagation you can use either the `Request` or the `$_SERVER` variable:
+When using http header for context propagation you can use the `Request` for example:
 
 ```php
     use OpenTracing\Carriers\HttpHeaders;

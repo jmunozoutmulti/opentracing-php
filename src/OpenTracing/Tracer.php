@@ -45,46 +45,19 @@ interface Tracer
      *  }
      *
      * @param string $operationName
-     * @param SpanReference|null $parentReference
-     * @param float|int|\DateTimeInterface|null $startTimestamp if passing float or int
-     * it should represent the timestamp (including as many decimal places as you need)
-     * @param Tag[] $tags
-     * @param string $thread Only use it if you plan to do async operations
+     * @param array|SpanOptions $options
      * @return Span
      */
-    public function startActiveSpan(
-        $operationName,
-        SpanReference $parentReference = null,
-        $startTimestamp = null,
-        array $tags = [],
-        $thread = null
-    );
+    public function startActiveSpan($operationName, $options = []);
 
     /**
      * Starts and returns a new Span representing a unit of work.
      *
      * @param string $operationName
-     * @param SpanReference|null $parentReference
-     * @param float|int|\DateTimeInterface|null $startTimestamp if passing float or int
-     * it should represent the timestamp (including as many decimal places as you need)
-     * @param Tag[] $tags
-     * @param string $thread Only use it if you plan to do async operations
-     * @return Span
-     */
-    public function startManualSpan(
-        $operationName,
-        SpanReference $parentReference = null,
-        $startTimestamp = null,
-        array $tags = [],
-        $thread = null
-    );
-
-    /**
-     * @param string $operationName
      * @param array|SpanOptions $options
      * @return Span
      */
-    public function startSpanWithOptions($operationName, $options = []);
+    public function startManualSpan($operationName, $options = []);
 
     /**
      * @return ActiveSpanSource
@@ -92,10 +65,9 @@ interface Tracer
     public function activeSpanSource();
 
     /**
-     * @param string|array $thread
      * @return Span
      */
-    public function activeSpan($thread = null);
+    public function activeSpan();
 
     /**
      * @param SpanContext $spanContext

@@ -7,26 +7,21 @@ namespace OpenTracing;
  */
 interface ActiveSpanSource
 {
-    const THREAD_DEFAULT = 'default';
-
     /**
      * Activates an `Span`, so that it is used as a parent when creating new spans.
      * The implementation must keep track of the active spans sequence, so
      * that previous spans can be resumed after a deactivation.
      *
      * @param Span $span
-     * @param string|array $threads Use only in case of async operations. Allows you to keep
-     * an span as active in different threads.
      */
-    public function activate(Span $span, $threads = self::THREAD_DEFAULT);
+    public function activate(Span $span);
 
     /**
-     * Returns current active `Span` for a given thread.
+     * Returns current active `Span`.
      *
-     * @param string $thread
      * @return Span
      */
-    public function activeSpan($thread = self::THREAD_DEFAULT);
+    public function activeSpan();
 
     /**
      * Deactivate the given `Span`, restoring the previous active one.

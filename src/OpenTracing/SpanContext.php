@@ -9,7 +9,7 @@ final class SpanContext
     /**
      * @var array
      */
-    private $baggageItems;
+    private $baggageItems = [];
 
     /**
      * @var Context
@@ -53,5 +53,15 @@ final class SpanContext
     public function context()
     {
         return $this->context->context();
+    }
+
+    /**
+     * @param SpanContext $spanContext
+     * @return bool
+     */
+    public function isEqual(SpanContext $spanContext)
+    {
+        return ($this->baggageItems == $spanContext->baggageItems)
+            && $this->context->isEqual($spanContext->context());
     }
 }
