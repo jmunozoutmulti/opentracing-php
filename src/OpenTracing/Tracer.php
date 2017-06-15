@@ -22,18 +22,61 @@ interface Tracer
     const FORMAT_HTTP_HEADERS = 3;
 
     /**
+     * Starts and returns a new `Span` representing a unit of work.
+     *
+     * This method differs from `startManualSpan` because it uses in-process
+     * context propagation to keep track of the current active `Span` (if
+     * available).
+     *
+     * Starting a root `Span` with no casual references and a child `Span`
+     * in a different function, is possible without passing the parent
+     * reference around:
+     *
+     *  function handleRequest(Request $request, $userId)
+     *  {
+     *      $rootSpan = $this->tracer->startActiveSpan('request.handler');
+     *      $user = $this->repository->getUser($userId);
+     *  }
+     *
+     *  function getUser($userId)
+     *  {
+     *      // `$childSpan` has `$rootSpan` as parent.
+     *      $childSpan = $this->tracer->startActiveSpan('db.query');
+     *  }
+     *
      * @param string $operationName
      * @param SpanReference|null $parentReference
      * @param float|int|\DateTimeInterface|null $startTimestamp if passing float or int
      * it should represent the timestamp (including as many decimal places as you need)
      * @param Tag[] $tags
+     * @param string $thread Only use it if you plan to do async operations
      * @return Span
      */
-    public function startSpan(
+    public function startActiveSpan(
         $operationName,
         SpanReference $parentReference = null,
         $startTimestamp = null,
-        array $tags = []
+        array $tags = [],
+        $thread = null
+    );
+
+    /**
+     * Starts and returns a new Span representing a unit of work.
+     *
+     * @param string $operationName
+     * @param SpanReference|null $parentReference
+     * @param float|int|\DateTimeInterface|null $startTimestamp if passing float or int
+     * it should represent the timestamp (including as many decimal places as you need)
+     * @param Tag[] $tags
+     * @param string $thread Only use it if you plan to do async operations
+     * @return Span
+     */
+    public function startManualSpan(
+        $operationName,
+        SpanReference $parentReference = null,
+        $startTimestamp = null,
+        array $tags = [],
+        $thread = null
     );
 
     /**
@@ -41,7 +84,18 @@ interface Tracer
      * @param array|SpanOptions $options
      * @return Span
      */
-    public function startSpanWithOptions($operationName, $options);
+    public function startSpanWithOptions($operationName, $options = []);
+
+    /**
+     * @return ActiveSpanSource
+     */
+    public function activeSpanSource();
+
+    /**
+     * @param string|array $thread
+     * @return Span
+     */
+    public function activeSpan($thread = null);
 
     /**
      * @param SpanContext $spanContext

@@ -22,6 +22,16 @@ final class SpanOptions
      */
     private $startTime;
 
+    /**
+     * @var bool
+     */
+    private $isActive = true;
+
+    /**
+     * @var string
+     */
+    private $thread;
+
     private function __construct()
     {
         new self();
@@ -33,6 +43,14 @@ final class SpanOptions
         
         foreach ($options as $key => $value) {
             switch ($key) {
+                case 'is_active':
+                    $spanOptions->isActive = (bool) $value;
+                    break;
+
+                case 'thread':
+                    $spanOptions->thread = (string) $value;
+                    break;
+
                 case 'child_of':
                     $spanOptions->childOf = self::buildChildOf($value);
                     break;
