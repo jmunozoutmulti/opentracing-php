@@ -19,7 +19,8 @@ final class NoopTracer implements Tracer
         $operationName,
         SpanReference $parentReference = null,
         $startTimestamp = null,
-        array $tags = []
+        array $tags = [],
+        $thread = null
     ) {
     
         return NoopSpan::create();
@@ -29,7 +30,8 @@ final class NoopTracer implements Tracer
         $operationName,
         SpanReference $parentReference = null,
         $startTimestamp = null,
-        array $tags = []
+        array $tags = [],
+        $thread = null
     ) {
         return NoopSpan::create();
     }
@@ -57,7 +59,7 @@ final class NoopTracer implements Tracer
         return NoopActiveSpanSource::create();
     }
 
-    public function activeSpan($thread = ActiveSpanSource::THREAD_DEFAULT)
+    public function activeSpan($thread = null)
     {
         return NoopSpan::create();
     }
