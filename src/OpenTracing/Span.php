@@ -15,6 +15,10 @@ interface Span
     public function context();
 
     /**
+     * Finishes the span and locks it so it becomes immutable. As an implementor, make
+     * sure you call {@see Tracer::deactivate()} otherwise new spans might try to be child
+     * of this one.
+     *
      * @param float|int|\DateTimeInterface|null $finishTime if passing float or int
      * it should represent the timestamp (including as many decimal places as you need)
      * @param array $logRecords
@@ -42,7 +46,7 @@ interface Span
 
     /**
      * log is a concise, readable way to record key:value logging data about a Span.
-     * As an implementor, consider to use this one LogUtils\keyValueLogFieldsConverter
+     * As an implementor, consider to use this one {@see LogUtils\keyValueLogFieldsConverter()}
      *
      * @param array|string[string] $logs
      */
